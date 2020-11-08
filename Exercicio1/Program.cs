@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Exercicio1.Entities;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -11,11 +12,16 @@ namespace Exercicio1
         {
             Console.Write("Enter the path of source file: ");
             string path = Console.ReadLine();
+            
             string newPath = Path.GetDirectoryName(path);
-            Directory.CreateDirectory(newPath + Path.DirectorySeparatorChar + "out");
+            if (!Directory.Exists(newPath + Path.DirectorySeparatorChar + "out"))
+            {
+                Directory.CreateDirectory(newPath + Path.DirectorySeparatorChar + "out");
+            } 
+           
             newPath = newPath + Path.DirectorySeparatorChar + "out" + Path.DirectorySeparatorChar + "summary.csv";
 
-            List<string[]> list = new List<string[]>();
+            List<Product> list = new List<Product>();
 
             try
             {
@@ -25,25 +31,20 @@ namespace Exercicio1
                     {
                         while (!reader.EndOfStream)
                         {
-                            list.Add(reader.ReadLine().Split(","));
+                            string[] vs = reader.ReadLine().Split(",");
+
+                            list.Add(new Product(vs[0], double.Parse(vs[1], CultureInfo.InvariantCulture), int.Parse(vs[2])));
                         }
                     }
                 }
 
                 using (FileStream stream = new FileStream(newPath, FileMode.OpenOrCreate))
                 {
-
-
                     using (StreamWriter writer = new StreamWriter(stream))
                     {
-                        foreach (string[] vs in list)
+                        foreach (Product p in list)
                         {
-                            string temp = vs[0];
-                            temp += ",";
-                            temp += ((double.Parse(vs[1], CultureInfo.InvariantCulture)
-                                * double.Parse(vs[2], CultureInfo.InvariantCulture))
-                                .ToString("F2", CultureInfo.InvariantCulture));
-                            writer.WriteLine(temp);
+                            writer.WriteLine(p);
                         }
                     }
                 }
